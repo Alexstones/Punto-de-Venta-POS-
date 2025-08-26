@@ -55,124 +55,147 @@
     if (data?.length) cart.add(data[0], 1);
   }
 
-  const mxn = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n ?? 0);
+  const mxn = (n: number) =>
+    new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n ?? 0);
+
+  // === Estilos reutilizables (todas utilidades Tailwind) ===
+  const pageWrap =
+    "bg-gradient-to-br from-blue-50 to-blue-200 dark:from-blue-950 dark:to-blue-800 text-neutral-800 dark:text-neutral-100 p-6 min-h-screen";
+  const card =
+    "rounded-2xl p-4 bg-white/70 dark:bg-white/5 backdrop-blur-sm ring-1 ring-black/5 dark:ring-white/10 shadow-lg";
+  const btn =
+    "inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold transition";
+  const btnPrimary =
+    "bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:brightness-110 shadow-lg";
+  const btnOutline =
+    "ring-1 ring-inset ring-neutral-300 dark:ring-neutral-700 hover:bg-neutral-50/60 dark:hover:bg-white/10";
+  const inputCls =
+    "px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-neutral-900";
 </script>
 
-<h1 class="text-2xl font-semibold mb-4">Punto de Venta</h1>
+<div class={pageWrap}>
+  <h1 class="text-3xl font-bold mb-6 text-center md:text-left">Punto de Venta 🧾</h1>
 
-<div class="grid gap-4 lg:grid-cols-3">
-  <!-- Izquierda: búsqueda + escáner + carrito -->
-  <div class="lg:col-span-2 space-y-4">
-    <div class="card flex gap-2">
-      <input
-        bind:this={inputEl}
-        bind:value={query}
-        class="input"
-        placeholder="Escanea o escribe nombre / SKU / código"
-        on:keydown={(e) => e.key === "Enter" && addByQuery()}
-      />
-      <button class="btn btn-primary" on:click={addByQuery}>Agregar</button>
-    </div>
+  <div class="grid gap-4 lg:grid-cols-3">
+    <!-- Izquierda: búsqueda + escáner + carrito -->
+    <div class="lg:col-span-2 space-y-4">
+      <div class={`${card} flex gap-2`}>
+        <input
+          bind:this={inputEl}
+          bind:value={query}
+          class={inputCls}
+          placeholder="Escanea o escribe nombre / SKU / código"
+          on:keydown={(e) => e.key === "Enter" && addByQuery()}
+        />
+        <button class={`${btn} ${btnPrimary}`} on:click={addByQuery}>Agregar</button>
+      </div>
 
-    <div class="card">
-      <div class="text-sm font-medium mb-2">Escáner</div>
-      <Scanner on:decoded={(e) => addByBarcode(e.detail)} />
-    </div>
+      <div class={card}>
+        <div class="text-sm font-medium mb-2">Escáner</div>
+        <Scanner on:decoded={(e) => addByBarcode(e.detail)} />
+      </div>
 
-    <div class="card overflow-auto">
-      <table class="w-full text-sm">
-        <thead class="sticky top-0 bg-neutral-100/80 backdrop-blur dark:bg-neutral-800/70">
-          <tr>
-            <th class="p-2 text-left">Producto</th>
-            <th class="p-2 text-right">Precio</th>
-            <th class="p-2 text-right">Cant</th>
-            <th class="p-2 text-right">Subtotal</th>
-            <th class="p-2"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each $cart as line}
-            <tr class="border-t border-neutral-200 dark:border-neutral-800">
-              <td class="p-2 font-medium">{line.name}</td>
-              <td class="p-2 text-right">{mxn(line.unit_price)}</td>
-              <td class="p-2 text-right">
-                <div class="inline-flex items-center gap-2">
-                  <button class="btn btn-outline px-2 py-1" on:click={() => cart.dec(line.product_id)}>-</button>
-                  <span class="min-w-[2ch] text-right inline-block">{line.quantity}</span>
-                  <button class="btn btn-outline px-2 py-1" on:click={() => cart.inc(line.product_id)}>+</button>
-                </div>
-              </td>
-              <td class="p-2 text-right">{mxn(line.unit_price * line.quantity)}</td>
-              <td class="p-2 text-right">
-                <button class="btn btn-outline px-2 py-1 text-red-600" on:click={() => cart.remove(line.product_id)}>Eliminar</button>
-              </td>
+      <div class={`${card} overflow-auto`}>
+        <table class="w-full text-sm">
+          <thead class="sticky top-0 bg-neutral-100/80 backdrop-blur dark:bg-neutral-800/70">
+            <tr class="text-neutral-600 dark:text-neutral-300">
+              <th class="p-2 text-left">Producto</th>
+              <th class="p-2 text-right">Precio</th>
+              <th class="p-2 text-right">Cant</th>
+              <th class="p-2 text-right">Subtotal</th>
+              <th class="p-2"></th>
             </tr>
-          {/each}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {#each $cart as line}
+              <tr class="border-t border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50/60 dark:hover:bg-white/5">
+                <td class="p-2 font-medium">{line.name}</td>
+                <td class="p-2 text-right tabular-nums">{mxn(line.unit_price)}</td>
+                <td class="p-2 text-right">
+                  <div class="inline-flex items-center gap-2">
+                    <button class={`${btn} ${btnOutline} px-2 py-1`} on:click={() => cart.dec(line.product_id)}>-</button>
+                    <span class="min-w-[2ch] text-right inline-block">{line.quantity}</span>
+                    <button class={`${btn} ${btnOutline} px-2 py-1`} on:click={() => cart.inc(line.product_id)}>+</button>
+                  </div>
+                </td>
+                <td class="p-2 text-right tabular-nums">{mxn(line.unit_price * line.quantity)}</td>
+                <td class="p-2 text-right">
+                  <button class={`${btn} ${btnOutline} px-2 py-1 text-red-600`} on:click={() => cart.remove(line.product_id)}>
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
 
-      {#if !$cart.length}
-        <p class="text-center text-sm text-neutral-500 py-6">Agrega productos para comenzar la venta.</p>
-      {/if}
+        {#if !$cart.length}
+          <p class="text-center text-sm text-neutral-500 py-6">Agrega productos para comenzar la venta.</p>
+        {/if}
+      </div>
     </div>
+
+    <!-- Derecha: totales, descuentos/IVA, pagos -->
+    <form method="POST" action="?/checkout" class="space-y-4">
+      <div class={`${card} space-y-4`}>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-neutral-500">Subtotal</span>
+          <div class="text-lg font-semibold tabular-nums">{mxn(subtotal)}</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="discount" class="block text-sm text-neutral-500 mb-1">Descuento (MXN)</label>
+            <input id="discount" name="discount" bind:value={discount} inputmode="decimal" class={inputCls} />
+          </div>
+          <div>
+            <label for="taxRate" class="block text-sm text-neutral-500 mb-1">IVA (%)</label>
+            <input id="taxRate" name="tax_rate" bind:value={taxRate} inputmode="decimal" class={inputCls} />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-neutral-500">Impuesto</span>
+          <div class="tabular-nums">{mxn(tax)}</div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-neutral-500">Total</span>
+          <div class="text-3xl font-extrabold tabular-nums text-blue-700 dark:text-blue-400">{mxn(totalDue)}</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="paidCash" class="block text-sm text-neutral-500 mb-1">Efectivo</label>
+            <input id="paidCash" name="paid_cash" bind:value={paidCash} inputmode="decimal" class={inputCls} />
+          </div>
+          <div>
+            <label for="paidCard" class="block text-sm text-neutral-500 mb-1">Tarjeta</label>
+            <input id="paidCard" name="paid_card" bind:value={paidCard} inputmode="decimal" class={inputCls} />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-sm">
+          <span>Cambio</span>
+          <strong class="tabular-nums">{mxn(change)}</strong>
+        </div>
+        <div class="flex items-center justify-between text-sm">
+          <span>Faltante</span>
+          <strong class="tabular-nums">{mxn(falta)}</strong>
+        </div>
+
+        <!-- items serializados -->
+        <input type="hidden" name="items" value={JSON.stringify(cart.serialize())} />
+
+        <div class="grid gap-2">
+          <button class={`${btn} ${btnPrimary} py-3 text-base`} type="submit" disabled={$total <= 0}>Cobrar</button>
+          <button class={`${btn} ${btnOutline} py-3`} type="button" on:click={() => cart.clear()}>Vaciar</button>
+        </div>
+      </div>
+    </form>
   </div>
-
-  <!-- Derecha: totales, descuentos/IVA, pagos -->
-  <form method="POST" action="?/checkout" class="space-y-4">
-    <div class="card space-y-3">
-      <div class="flex items-center justify-between">
-        <span class="text-sm text-neutral-500">Subtotal</span>
-        <div class="text-lg font-semibold">{mxn(subtotal)}</div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label for="discount" class="block text-sm text-neutral-500 mb-1">Descuento (MXN)</label>
-          <input id="discount" name="discount" bind:value={discount} inputmode="decimal" class="input" />
-        </div>
-        <div>
-          <label for="taxRate" class="block text-sm text-neutral-500 mb-1">IVA (%)</label>
-          <input id="taxRate" name="tax_rate" bind:value={taxRate} inputmode="decimal" class="input" />
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <span class="text-sm text-neutral-500">Impuesto</span>
-        <div>{mxn(tax)}</div>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <span class="text-sm text-neutral-500">Total</span>
-        <div class="text-2xl font-semibold">{mxn(totalDue)}</div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label for="paidCash" class="block text-sm text-neutral-500 mb-1">Efectivo</label>
-          <input id="paidCash" name="paid_cash" bind:value={paidCash} inputmode="decimal" class="input" />
-        </div>
-        <div>
-          <label for="paidCard" class="block text-sm text-neutral-500 mb-1">Tarjeta</label>
-          <input id="paidCard" name="paid_card" bind:value={paidCard} inputmode="decimal" class="input" />
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between text-sm">
-        <span>Cambio</span>
-        <strong>{mxn(change)}</strong>
-      </div>
-      <div class="flex items-center justify-between text-sm">
-        <span>Faltante</span>
-        <strong>{mxn(falta)}</strong>
-      </div>
-
-      <!-- items serializados -->
-      <input type="hidden" name="items" value={JSON.stringify(cart.serialize())} />
-
-      <div class="grid gap-2">
-        <button class="btn btn-primary" type="submit" disabled={$total <= 0}>Cobrar</button>
-        <button class="btn btn-outline" type="button" on:click={() => cart.clear()}>Vaciar</button>
-      </div>
-    </div>
-  </form>
 </div>
+
+<style>
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+</style>
